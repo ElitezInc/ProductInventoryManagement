@@ -1,21 +1,21 @@
 package com.example.productinventory;
 
 public class Post {
-    private String guid;
+    private String name;
     private String date;
     private String title;
     private String content;
-    private String excerpt;
     private String categories;
     private String tags;
-    private String feature_image;
+    private String[] images;
     //Model data
-    public String getGuid() {
-        return guid;
+
+    public String getName() {
+        return name;
     }
 
-    public void setGuid(String guid) {
-        this.guid = guid;
+    public void setName(String name) {
+        this.name = name;
     }
 
     public String getDate() {
@@ -42,14 +42,6 @@ public class Post {
         this.content = content;
     }
 
-    public String getExcerpt() {
-        return excerpt;
-    }
-
-    public void setExcerpt(String excerpt) {
-        this.excerpt = excerpt;
-    }
-
     public String getCategories() {
         return categories;
     }
@@ -66,11 +58,11 @@ public class Post {
         this.tags = tags;
     }
 
-    public String getFeature_image() {
-        return feature_image;
+    public String[] getImages() {
+        return images;
     }
 
-    public void setFeature_image(String feature_image) {
-        this.feature_image = feature_image;
+    public void setImages(String[] images) {
+        this.images = images;
     }
 }

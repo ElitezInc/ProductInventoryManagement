@@ -1,6 +1,6 @@
 <resources>
     <string name="app_name">Awesome inventory</string>
-    <string name="url">http://45.81.252.9/wp-json/wp/v2/posts?per_page=100</string>
+    <string name="url">http://45.81.252.9/data.json</string>
     <string name="open">Open</string>
     <string name="close">Close</string>
     <!-- TODO: Remove or change this placeholder text -->

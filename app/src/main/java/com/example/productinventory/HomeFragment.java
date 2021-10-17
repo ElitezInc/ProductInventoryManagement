@@ -1,5 +1,10 @@
 package com.example.productinventory;
 
+import static android.util.Base64.CRLF;
+import static android.util.Base64.DEFAULT;
+import static android.util.Base64.NO_CLOSE;
+import static android.util.Base64.URL_SAFE;
+
 import android.content.res.Configuration;
 import android.os.Bundle;
 
@@ -9,6 +14,7 @@ import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import android.util.Base64;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -24,7 +30,18 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.UnsupportedEncodingException;
+import java.net.URI;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
+import java.security.InvalidKeyException;
+import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
+import java.util.List;
+import java.util.UUID;
+
+import javax.crypto.Mac;
+import javax.crypto.spec.SecretKeySpec;
 
 public class HomeFragment extends Fragment {
     public static final String TAG ="TAG";
@@ -37,22 +54,23 @@ public class HomeFragment extends Fragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        ((MainActivity) requireActivity()).posts = new ArrayList<>();
+        MainActivity.posts = new ArrayList<>();
 
         post_list = view.findViewById(R.id.post_list);
 
         extractPosts(getResources().getString(R.string.url));
+
         if (this.getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE)
             manager = new GridLayoutManager(requireContext(), 3);
         else
             manager = new GridLayoutManager(requireContext(), 2);
         post_list.setLayoutManager(manager);
-        adapter = new PostsAdapter(((MainActivity) requireActivity()).posts, position -> {
+        adapter = new PostsAdapter(MainActivity.posts, position -> {
             Log.d("Debug", "on click: " + position);
 
             //back to Stack from bottom
             requireActivity().getSupportFragmentManager().beginTransaction().replace(R.id.framelayout,
-                    new Details(((MainActivity) requireActivity()).posts.get(position))).addToBackStack("Details").commit();
+                    new Details(MainActivity.posts.get(position))).addToBackStack("Details").commit();
         });
         post_list.setAdapter(adapter);
     }
@@ -88,22 +106,22 @@ public class HomeFragment extends Fragment {
                         JSONObject jsonObjectData = response.getJSONObject(i);
 
                         //extract the data
-                        p.setDate(jsonObjectData.getString("date"));
+                        p.setDate(jsonObjectData.getString("date_created"));
 
                         //extract the title
-                        JSONObject titleObject = jsonObjectData.getJSONObject("title");
-                        p.setTitle(titleObject.getString("rendered"));
+                        p.setTitle(jsonObjectData.getString("name"));
 
                         //extract the content
-                        JSONObject contentObject = jsonObjectData.getJSONObject("content");
-                        p.setContent(contentObject.getString("rendered"));
-
-                        //extract the excerpt
-                        JSONObject excerptObject = jsonObjectData.getJSONObject("excerpt");
-                        p.setExcerpt(excerptObject.getString("rendered"));
+                        p.setContent(jsonObjectData.getString("description"));
 
                         //extract feature image
-                        p.setFeature_image(jsonObjectData.getString("featured_image_url"));
+
+                        JSONArray arr =  jsonObjectData.getJSONArray("images");
+                        List<String> list = new ArrayList<>();
+                        for(int x = 0; x < arr.length(); x++){
+                            list.add(arr.getJSONObject(x).getString("src"));
+                        }
+                        p.setImages(list.toArray(new String[] {}));
 
                         MainActivity.posts.add(p);
                         adapter.notifyDataSetChanged();

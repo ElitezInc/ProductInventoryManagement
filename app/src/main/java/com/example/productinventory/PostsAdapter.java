@@ -38,7 +38,7 @@ public class PostsAdapter extends RecyclerView.Adapter<PostsAdapter.ViewHolder> 
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
         holder.postTitle.setText(allPosts.get(position).getTitle());
-        Picasso.get().load(allPosts.get(position).getFeature_image()).fit().placeholder(R.drawable.placeholder).into(holder.postImage);
+        Picasso.get().load(allPosts.get(position).getImages()[0]).fit().placeholder(R.drawable.placeholder).into(holder.postImage);
 
         holder.constraintLayout.setOnClickListener(view -> {
             if (listener != null)

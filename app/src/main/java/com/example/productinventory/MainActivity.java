@@ -2,10 +2,12 @@ package com.example.productinventory;
 
 import android.os.Bundle;
 import android.util.Log;
+import android.view.Gravity;
 
 import androidx.appcompat.app.ActionBarDrawerToggle;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
+import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -49,12 +51,16 @@ public class MainActivity extends AppCompatActivity {
                     getSupportFragmentManager().beginTransaction().replace(R.id.framelayout,
                             new HomeFragment()).commit();
 
+                    drawer.closeDrawer(GravityCompat.START);
+
                     break;
                 case R.id.action_orders:
                     Log.d("Debug", "Selected orders");
 
                     getSupportFragmentManager().beginTransaction().replace(R.id.framelayout,
                             new BlankFragment()).commit();
+
+                    drawer.closeDrawer(GravityCompat.START);
 
                     break;
                 case R.id.action_discussions:
