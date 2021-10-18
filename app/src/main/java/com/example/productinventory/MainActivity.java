@@ -1,5 +1,7 @@
 package com.example.productinventory;
 
+import android.content.Context;
+import android.content.res.Resources;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Gravity;
@@ -11,12 +13,17 @@ import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.android.volley.Request;
+import com.example.oauth1.HMACSha1SignatureService;
+import com.example.oauth1.TimestampServiceImpl;
 import com.google.android.material.navigation.NavigationView;
 
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
 import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
-    public static final String TAG ="TAG";
+    public static final String TAG = "TAG";
     DrawerLayout drawer;
     ActionBarDrawerToggle toggle;
     NavigationView navigationView;
@@ -78,6 +85,57 @@ public class MainActivity extends AppCompatActivity {
 
             return true;
         });
+    }
+
+    //https://github.com/rameshvoltella/WoocommerceAndroidOAuth1
+    public static String getOauth1Url(String endpoint, String params, String method, Context context)
+    {
+        final String url = context.getResources().getString(R.string.baseUrl) + endpoint;
+        final String costumerKey = "ck_f3b32711fac61482761242158e246d82ede689da";
+        String costumerSecret = "cs_407cc13c32d9fa1eaaaefe5b30eae52efe7adb0b";
+
+        final String nonce = new TimestampServiceImpl().getNonce();
+        final String timestamp = new TimestampServiceImpl().getTimestampInSeconds();
+
+        // GENERATED NONCE and TIME STAMP
+        Log.d("nonce", nonce);
+        Log.d("time", timestamp);
+
+        String firstEncodedString = method + "&" + encodeUrl(url);
+        Log.d("firstEncodedString", firstEncodedString);
+
+        String parameterString = "oauth_consumer_key=" + costumerKey + "&oauth_nonce=" + nonce + "&oauth_signature_method=HMAC-SHA1&oauth_timestamp=" + timestamp + "&oauth_version=1.0" + (!params.isEmpty() ? "&" + params : "");
+        String secondEncodedString = "&" + encodeUrl(parameterString);
+
+        Log.d("secondEncodedString", secondEncodedString);
+
+        String baseString = firstEncodedString + secondEncodedString;
+
+        //THE BASE STRING AND COSTUMER_SECRET KEY IS USED FOR GENERATING SIGNATURE
+        Log.d("baseString",baseString);
+
+        String signature = new HMACSha1SignatureService().getSignature(baseString, costumerSecret,"");
+        Log.d("SignatureBefore", signature);
+
+        //Signature is encoded before parsing (ONLY FOR THIS EXAMPLE NOT NECESSARY FOR LIB LIKE RETROFIT,OKHTTP)
+        signature = encodeUrl(signature);
+
+        Log.d("SignatureAfter ENCODING", signature);
+
+        return context.getResources().getString(R.string.baseUrl) + endpoint + "?oauth_signature_method=HMAC-SHA1&oauth_consumer_key=" + costumerKey + "&oauth_version=1.0&oauth_timestamp=" + timestamp + "&oauth_nonce=" + nonce + "&oauth_signature=" + signature + (!params.isEmpty() ? "&" + params : "");
+    }
+
+    public static String encodeUrl(String url)
+    {
+        String encodedurl = "";
+        try {
+            encodedurl = URLEncoder.encode(url,"UTF-8");
+            Log.d("Encodeurl", encodedurl);
+        } catch (UnsupportedEncodingException e) {
+            e.printStackTrace();
+        }
+
+        return encodedurl;
     }
 }
 

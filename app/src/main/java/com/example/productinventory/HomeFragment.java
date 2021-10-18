@@ -1,24 +1,17 @@
 package com.example.productinventory;
 
-import static android.util.Base64.CRLF;
-import static android.util.Base64.DEFAULT;
-import static android.util.Base64.NO_CLOSE;
-import static android.util.Base64.URL_SAFE;
-
 import android.content.res.Configuration;
 import android.os.Bundle;
+import android.util.Log;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
-
-import android.util.Base64;
-import android.util.Log;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.view.ViewGroup;
 
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
@@ -30,18 +23,8 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.io.UnsupportedEncodingException;
-import java.net.URI;
-import java.net.URLEncoder;
-import java.nio.charset.StandardCharsets;
-import java.security.InvalidKeyException;
-import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.UUID;
-
-import javax.crypto.Mac;
-import javax.crypto.spec.SecretKeySpec;
 
 public class HomeFragment extends Fragment {
     public static final String TAG ="TAG";
@@ -58,7 +41,7 @@ public class HomeFragment extends Fragment {
 
         post_list = view.findViewById(R.id.post_list);
 
-        extractPosts(getResources().getString(R.string.url));
+        extractPosts("/products");
 
         if (this.getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE)
             manager = new GridLayoutManager(requireContext(), 3);
@@ -75,8 +58,6 @@ public class HomeFragment extends Fragment {
         post_list.setAdapter(adapter);
     }
 
-
-
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -89,12 +70,12 @@ public class HomeFragment extends Fragment {
         return inflater.inflate(R.layout.fragment_home, container, false);
     }
 
-    public void extractPosts(String URL){
+    public void extractPosts(String endpoint){
         //use volley to extract the date
 
         RequestQueue queue = Volley.newRequestQueue(requireContext());
 
-        JsonArrayRequest request = new JsonArrayRequest(Request.Method.GET, URL, null, new Response.Listener<JSONArray>() {
+        JsonArrayRequest request = new JsonArrayRequest(Request.Method.GET, MainActivity.getOauth1Url(endpoint, "per_page=100", "GET", requireContext()), null, new Response.Listener<JSONArray>() {
             @Override
             public void onResponse(JSONArray response) {
                 Log.d(TAG, "onResponse: " + response.toString());
